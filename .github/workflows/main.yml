@@ -1,0 +1,19 @@
+name: 24/7 Stream
+on:
+  schedule:
+    - cron: '0 */6 * * *' # سيعيد تشغيل نفسه كل 6 ساعات لضمان الاستمرار
+  workflow_dispatch:
+
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install FFmpeg
+        run: sudo apt-get install -y ffmpeg
+
+      - name: Start Streaming
+        run: |
+          ffmpeg -re -loop 1 -i image.jpg -f lavfi -i anullsrc -c:v libx264 -tune stillimage -pix_fmt yuv420p -b:v 1000k -g 60 -c:a aac -ar 44100 -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
